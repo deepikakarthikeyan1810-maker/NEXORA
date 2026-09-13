@@ -193,8 +193,63 @@ class ConversationAnalyzer:
                 detected_categories.add("urgent_payment")
                 detected_factors.append(self._build_factor("urgent_payment", match))
 
+        # Second-Stage Compound Risk Analysis Layer
+        compound = self._detect_compound_risk(detected_categories)
+        if compound:
+            detected_factors.append(compound)
+
         raw_score = sum(f.score for f in detected_factors)
         return detected_factors, raw_score
+
+    def _detect_compound_risk(self, detected_categories: set) -> Optional[RiskFactorItem]:
+        """
+        Evaluates second-stage compound risk patterns from first-stage detected categories.
+        Returns at most ONE RiskFactorItem if a compound pattern matches, or None.
+        """
+        # 1. Coordinated financial social-engineering pattern
+        if "bank_impersonation" in detected_categories:
+            if detected_categories.intersection({"otp_request", "bank_credential_request", "card_info_request", "password_pin_request"}):
+                if detected_categories.intersection({"financial_transfer", "urgent_payment"}):
+                    return RiskFactorItem(
+                        factor="Coordinated financial social-engineering pattern",
+                        severity="HIGH",
+                        evidence="Bank impersonation combined with credential collection and financial action request",
+                        score=25
+                    )
+
+        # 2. Coordinated remote-access scam pattern
+        if "tech_support_impersonation" in detected_categories:
+            if detected_categories.intersection({"remote_access_request", "software_install_request"}):
+                return RiskFactorItem(
+                    factor="Coordinated remote-access scam pattern",
+                    severity="HIGH",
+                    evidence="Technical support impersonation combined with remote access or software installation request",
+                    score=25
+                )
+
+        # 3. Coercive impersonation pattern
+        if detected_categories.intersection({"bank_impersonation", "govt_police_impersonation", "tech_support_impersonation"}):
+            if detected_categories.intersection({"account_blocking_threat", "fear_threat_language"}):
+                if detected_categories.intersection({"unusual_urgency", "urgent_payment"}):
+                    return RiskFactorItem(
+                        factor="Coercive impersonation pattern",
+                        severity="HIGH",
+                        evidence="Impersonation combined with threat language and immediate pressure",
+                        score=20
+                    )
+
+        # 4. Coordinated social-engineering pattern
+        if detected_categories.intersection({"bank_impersonation", "govt_police_impersonation", "tech_support_impersonation"}):
+            if detected_categories.intersection({"otp_request", "bank_credential_request", "card_info_request", "password_pin_request", "confidential_info_request"}):
+                if detected_categories.intersection({"unusual_urgency", "secrecy_request", "bypass_verification"}):
+                    return RiskFactorItem(
+                        factor="Coordinated social-engineering pattern",
+                        severity="HIGH",
+                        evidence="Impersonation combined with sensitive information request and manipulation tactics",
+                        score=20
+                    )
+
+        return None
 
     def _build_factor(self, key: str, evidence: str) -> RiskFactorItem:
         cfg = self.configs[key]

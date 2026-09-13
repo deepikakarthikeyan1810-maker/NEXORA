@@ -118,3 +118,28 @@ def test_empty_transcript(analyzer):
     factors, score = analyzer.analyze("")
     assert factors == []
     assert score == 0
+
+
+def test_compound_financial_social_engineering(analyzer):
+    """Test compound pattern 1: Bank impersonation + OTP/credential + Money transfer."""
+    transcript = "I am calling from your bank. Tell me your OTP and transfer ₹20,000 immediately."
+    factors, score = analyzer.analyze(transcript)
+    factor_names = [f.factor for f in factors]
+    assert "Coordinated financial social-engineering pattern" in factor_names
+
+
+def test_compound_remote_access_scam(analyzer):
+    """Test compound pattern 2: Tech support impersonation + Remote access / software install."""
+    transcript = "I'm from technical support. Install AnyDesk and give me remote access to your computer."
+    factors, score = analyzer.analyze(transcript)
+    factor_names = [f.factor for f in factors]
+    assert "Coordinated remote-access scam pattern" in factor_names
+
+
+def test_compound_coercive_impersonation(analyzer):
+    """Test compound pattern 3: Police/Govt/Bank impersonation + Threat + Urgency."""
+    transcript = "Calling from police station. Arrest warrant issued against you. Pay the fee right now."
+    factors, score = analyzer.analyze(transcript)
+    factor_names = [f.factor for f in factors]
+    assert "Coercive impersonation pattern" in factor_names
+
