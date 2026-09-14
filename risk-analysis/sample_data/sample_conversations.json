@@ -1,0 +1,62 @@
+[
+  {
+    "scenario_id": "SCENARIO_1",
+    "name": "Normal Conversation",
+    "description": "Casual daily conversation without any social engineering or security requests.",
+    "request": {
+      "transcript": "Hey, are we still meeting at 5 today?",
+      "voice_authenticity_score": 0.95,
+      "speaker_verification_score": 0.90
+    },
+    "expected_risk_level": "LOW",
+    "expected_recommended_action": "ALLOW_CALL"
+  },
+  {
+    "scenario_id": "SCENARIO_2",
+    "name": "Suspicious Request",
+    "description": "Requesting account details under vague verification pretext.",
+    "request": {
+      "transcript": "Can you send me your account details? I need to verify something.",
+      "voice_authenticity_score": 0.50,
+      "speaker_verification_score": 0.50
+    },
+    "expected_risk_level": "MEDIUM",
+    "expected_recommended_action": "VERIFY_IDENTITY"
+  },
+  {
+    "scenario_id": "SCENARIO_3",
+    "name": "High Risk Impersonation",
+    "description": "Bank impersonation combined with account blocking threat, OTP request, and financial transfer demand.",
+    "request": {
+      "transcript": "I'm calling from your bank. Your account will be blocked. Tell me your OTP and transfer ₹20,000 immediately.",
+      "voice_authenticity_score": 0.35,
+      "speaker_verification_score": 0.40
+    },
+    "expected_risk_level": "HIGH",
+    "expected_recommended_action": "CHALLENGE_OR_BLOCK"
+  },
+  {
+    "scenario_id": "SCENARIO_4",
+    "name": "Remote Access Attack",
+    "description": "Technical support impersonation requesting remote access tool installation.",
+    "request": {
+      "transcript": "I'm from technical support. Install this application and give me remote access to your computer.",
+      "voice_authenticity_score": 0.30,
+      "speaker_verification_score": 0.25
+    },
+    "expected_risk_level": "HIGH",
+    "expected_recommended_action": "CHALLENGE_OR_BLOCK"
+  },
+  {
+    "scenario_id": "SCENARIO_5",
+    "name": "Contextual OTP Statement (False Positive Test)",
+    "description": "User mentioning bank security guidance about never sharing OTP. Should NOT trigger OTP request alarm.",
+    "request": {
+      "transcript": "The bank told me never to share my OTP with anyone over the phone.",
+      "voice_authenticity_score": 0.95,
+      "speaker_verification_score": 0.92
+    },
+    "expected_risk_level": "LOW",
+    "expected_recommended_action": "ALLOW_CALL"
+  }
+]
